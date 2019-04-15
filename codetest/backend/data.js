@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const Todos = new Schema(
+const Data = new Schema(
     {id: Number,
-    message: String}
+    todo: String,
+    completed: Boolean}
 );
 
-module.exports = mongoose.model("Data", Todos);
+module.exports = mongoose.model("Data", Data);

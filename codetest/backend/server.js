@@ -3,7 +3,7 @@ const express = require('express');
 let cors = require('cors');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
-//const Data = require('./data')
+const Data = require('./data')
 const app = express();
 const port = 3001;
 
@@ -32,41 +32,44 @@ app.use(logger("dev"));
 //******************************************************** */
 router.get("/getData", (req, res)=>{
     Data.find((err, data)=>{
-        if(err) return res.json({sucess: false, error: err});
-        return res.json({success: true, data: data})
-    });
+        if(err){
+            console.log(err)
+        } else{
+            res.json(data)
+    };
 });
 
-router.post("/updateData", (req, res)=>{
-    const {id, update} = req.body;
-    Data.findOneAndUpdate(id, update, err =>{
-        if(err) return res.json({success: false, error: err});
-        return res.json({success:true});
-    });
+router.post("/addData", (req, res)=>{
+    let todo = new Data(req.body);
+    todo.save().then(todo=>{
+        res.json({ status: 200, 'todo': 'todo added success'})
+    }).catch(err =>{
+        res.status(400).send('Adding new failed')
+    })
 });
 
-router.delete("/deleteData", (req, res)=>{
-    const {id} = req.body;
-    Data.findOneAndDelete(id, err=>{
-        if(err) return res.send(err);
-        return res.json({success: true});
+router.delete("/deleteData/:id", (req, res)=>{
+    Data.findOneAndDelete(req.params.id);
+    res.json({status: 200})
+    }).catch(err=>{
+        res.status(400).send("NOT deleted")
     });
-});
 
-router.post("/putData", (req, res)=>{
-    let data = new Data();
-    const {id, message} = req.body;
-    if((!id && id !==0) || !message){
-        return res.json({
-            success: false,
-            error: "MACHIGAI"
-        });
-    }
-    data.message = message;
-    data.id = id;
-    data.save(err=>{
-        if(err) return res.json({success: false, error: err});
-        return res.json({success: true});
+router.post("/updateData/:id", (req, res)=>{
+    Data.findById(req.params.id, function(err, todo){
+        if(!todo)
+        res.status(404).send("data not found");
+        else
+        todo.todo = req.body.todo;
+        todo.id = req.body.id;
+        todo.completed = req.body.completed;
+
+        todo.save().then(todo=>{
+            res.json("todo updated")
+        }).catch(err =>{
+            res.status(400).send("NOT updated")
+        })
+    })
     });
     });
 
