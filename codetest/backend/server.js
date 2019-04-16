@@ -60,7 +60,7 @@ router.post("/updateData/:id", (req, res)=>{
         if(!todo)
         res.status(404).send("data not found");
         else
-        todo.todo = req.body.todo;
+        todo.text = req.body.text;
         todo.id = req.body.id;
         todo.completed = req.body.completed;
 
